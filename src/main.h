@@ -54,6 +54,7 @@ extern int TCPPort; // set by Portduino
 
 // Global Screen singleton.
 extern graphics::Screen *screen;
+
 // extern Observable<meshtastic::PowerStatus> newPowerStatus; //TODO: move this to main-esp32.cpp somehow or a helper class
 
 // extern meshtastic::PowerStatus *powerStatus;
@@ -69,8 +70,6 @@ extern uint32_t rebootAtMsec;
 extern uint32_t shutdownAtMsec;
 
 extern uint32_t serialSinceMsec;
-
-extern int heltec_version;
 
 // If a thread does something that might need for it to be rescheduled ASAP it can set this flag
 // This will suppress the current delay and instead try to run ASAP.

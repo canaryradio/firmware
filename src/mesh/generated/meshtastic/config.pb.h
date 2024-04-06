@@ -12,49 +12,53 @@
 /* Enum definitions */
 /* Defines the device's role on the Mesh network */
 typedef enum _meshtastic_Config_DeviceConfig_Role {
-    /* Client device role */
+    /* Description: App connected or stand alone messaging device.
+ Technical Details: Default Role */
     meshtastic_Config_DeviceConfig_Role_CLIENT = 0,
-    /* Client Mute device role
-   Same as a client except packets will not hop over this node, does not contribute to routing packets for mesh. */
+    /* Description: Device that does not forward packets from other devices. */
     meshtastic_Config_DeviceConfig_Role_CLIENT_MUTE = 1,
-    /* Router device role.
-   Mesh packets will prefer to be routed over this node. This node will not be used by client apps.
-   The wifi/ble radios and the oled screen will be put to sleep.
+    /* Description: Infrastructure node for extending network coverage by relaying messages. Visible in Nodes list.
+ Technical Details: Mesh packets will prefer to be routed over this node. This node will not be used by client apps.
+   The wifi radio and the oled screen will be put to sleep.
    This mode may still potentially have higher power usage due to it's preference in message rebroadcasting on the mesh. */
     meshtastic_Config_DeviceConfig_Role_ROUTER = 2,
-    /* Router Client device role
-   Mesh packets will prefer to be routed over this node. The Router Client can be used as both a Router and an app connected Client. */
+    /* Description: Combination of both ROUTER and CLIENT. Not for mobile devices. */
     meshtastic_Config_DeviceConfig_Role_ROUTER_CLIENT = 3,
-    /* Repeater device role
-   Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
+    /* Description: Infrastructure node for extending network coverage by relaying messages with minimal overhead. Not visible in Nodes list.
+ Technical Details: Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
    or any other packet type. They will simply rebroadcast any mesh packets on the same frequency, channel num, spread factor, and coding rate. */
     meshtastic_Config_DeviceConfig_Role_REPEATER = 4,
-    /* Tracker device role
-   Position Mesh packets will be prioritized higher and sent more frequently by default.
-   When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+    /* Description: Broadcasts GPS position packets as priority.
+ Technical Details: Position Mesh packets will be prioritized higher and sent more frequently by default.
+   When used in conjunction with power.is_power_saving = true, nodes will wake up,
    send position, and then sleep for position.position_broadcast_secs seconds. */
     meshtastic_Config_DeviceConfig_Role_TRACKER = 5,
-    /* Sensor device role
-   Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
-   When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+    /* Description: Broadcasts telemetry packets as priority.
+ Technical Details: Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
+   When used in conjunction with power.is_power_saving = true, nodes will wake up,
    send environment telemetry, and then sleep for telemetry.environment_update_interval seconds. */
     meshtastic_Config_DeviceConfig_Role_SENSOR = 6,
-    /* TAK device role
-    Used for nodes dedicated for connection to an ATAK EUD.
+    /* Description: Optimized for ATAK system communication and reduces routine broadcasts.
+ Technical Details: Used for nodes dedicated for connection to an ATAK EUD.
     Turns off many of the routine broadcasts to favor CoT packet stream
     from the Meshtastic ATAK plugin -> IMeshService -> Node */
     meshtastic_Config_DeviceConfig_Role_TAK = 7,
-    /* Client Hidden device role
-    Used for nodes that "only speak when spoken to"
+    /* Description: Device that only broadcasts as needed for stealth or power savings.
+ Technical Details: Used for nodes that "only speak when spoken to"
     Turns all of the routine broadcasts but allows for ad-hoc communication
     Still rebroadcasts, but with local only rebroadcast mode (known meshes only)
     Can be used for clandestine operation or to dramatically reduce airtime / power consumption */
     meshtastic_Config_DeviceConfig_Role_CLIENT_HIDDEN = 8,
-    /* Lost and Found device role
-    Used to automatically send a text message to the mesh 
+    /* Description: Broadcasts location as message to default channel regularly for to assist with device recovery.
+ Technical Details: Used to automatically send a text message to the mesh
     with the current position of the device on a frequent interval:
     "I'm lost! Position: lat / long" */
-    meshtastic_Config_DeviceConfig_Role_LOST_AND_FOUND = 9
+    meshtastic_Config_DeviceConfig_Role_LOST_AND_FOUND = 9,
+    /* Description: Enables automatic TAK PLI broadcasts and reduces routine broadcasts.
+ Technical Details: Turns off many of the routine broadcasts to favor ATAK CoT packet stream
+    and automatic TAK PLI (position location information) broadcasts.
+    Uses position module configuration to determine TAK PLI broadcast interval. */
+    meshtastic_Config_DeviceConfig_Role_TAK_TRACKER = 10
 } meshtastic_Config_DeviceConfig_Role;
 
 /* Defines the device's behavior for how messages are rebroadcast */
@@ -509,8 +513,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _meshtastic_Config_DeviceConfig_Role_MIN meshtastic_Config_DeviceConfig_Role_CLIENT
-#define _meshtastic_Config_DeviceConfig_Role_MAX meshtastic_Config_DeviceConfig_Role_LOST_AND_FOUND
-#define _meshtastic_Config_DeviceConfig_Role_ARRAYSIZE ((meshtastic_Config_DeviceConfig_Role)(meshtastic_Config_DeviceConfig_Role_LOST_AND_FOUND+1))
+#define _meshtastic_Config_DeviceConfig_Role_MAX meshtastic_Config_DeviceConfig_Role_TAK_TRACKER
+#define _meshtastic_Config_DeviceConfig_Role_ARRAYSIZE ((meshtastic_Config_DeviceConfig_Role)(meshtastic_Config_DeviceConfig_Role_TAK_TRACKER+1))
 
 #define _meshtastic_Config_DeviceConfig_RebroadcastMode_MIN meshtastic_Config_DeviceConfig_RebroadcastMode_ALL
 #define _meshtastic_Config_DeviceConfig_RebroadcastMode_MAX meshtastic_Config_DeviceConfig_RebroadcastMode_KNOWN_ONLY

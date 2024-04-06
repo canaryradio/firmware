@@ -183,8 +183,13 @@ void ScanI2CTwoWire::scanPort(I2CPort port)
 
 #if !defined(ARCH_PORTDUINO) && !defined(ARCH_STM32WL)
             case ATECC608B_ADDR:
-                type = ATECC608B;
-                if (atecc.begin(addr.address) == true) {
+#ifdef RP2040_SLOW_CLOCK
+                if (atecc.begin(addr.address, Wire, Serial2) == true)
+#else
+                if (atecc.begin(addr.address) == true)
+#endif
+
+                {
                     LOG_INFO("ATECC608B initialized\n");
                 } else {
                     LOG_WARN("ATECC608B initialization failed\n");
@@ -242,6 +247,10 @@ void ScanI2CTwoWire::scanPort(I2CPort port)
                     LOG_INFO("BME-280 sensor found at address 0x%x\n", (uint8_t)addr.address);
                     type = BME_280;
                     break;
+                case 0x55:
+                    LOG_INFO("BMP-085 or BMP-180 sensor found at address 0x%x\n", (uint8_t)addr.address);
+                    type = BMP_085;
+                    break;
                 default:
                     LOG_INFO("BMP-280 sensor found at address 0x%x\n", (uint8_t)addr.address);
                     type = BMP_280;
@@ -250,6 +259,7 @@ void ScanI2CTwoWire::scanPort(I2CPort port)
 
             case INA_ADDR:
             case INA_ADDR_ALTERNATE:
+            case INA_ADDR_WAVESHARE_UPS:
                 registerValue = getRegisterValue(ScanI2CTwoWire::RegisterLocation(addr, 0xFE), 2);
                 LOG_DEBUG("Register MFG_UID: 0x%x\n", registerValue);
                 if (registerValue == 0x5449) {
@@ -283,7 +293,18 @@ void ScanI2CTwoWire::scanPort(I2CPort port)
                 SCAN_SIMPLE_CASE(LPS22HB_ADDR, LPS22HB, "LPS22HB sensor found\n")
 
                 SCAN_SIMPLE_CASE(QMC6310_ADDR, QMC6310, "QMC6310 Highrate 3-Axis magnetic sensor found\n")
-                SCAN_SIMPLE_CASE(QMI8658_ADDR, QMI8658, "QMI8658 Highrate 6-Axis inertial measurement sensor found\n")
+
+            case QMI8658_ADDR:
+                registerValue = getRegisterValue(ScanI2CTwoWire::RegisterLocation(addr, 0x0A), 1); // get ID
+                if (registerValue == 0xC0) {
+                    type = BQ24295;
+                    LOG_INFO("BQ24295 PMU found\n");
+                } else {
+                    type = QMI8658;
+                    LOG_INFO("QMI8658 Highrate 6-Axis inertial measurement sensor found\n");
+                }
+                break;
+
                 SCAN_SIMPLE_CASE(QMC5883L_ADDR, QMC5883L, "QMC5883L Highrate 3-Axis magnetic sensor found\n")
 
                 SCAN_SIMPLE_CASE(PMSA0031_ADDR, PMSA0031, "PMSA0031 air quality sensor found\n")

@@ -1,4 +1,6 @@
 #pragma once
+#include "configuration.h"
+#if !MESHTASTIC_EXCLUDE_GPS
 
 #include "GPSStatus.h"
 #include "Observer.h"
@@ -20,12 +22,7 @@ struct uBloxGnssModelInfo {
     char extension[10][30];
 };
 
-typedef enum {
-    GNSS_MODEL_MTK,
-    GNSS_MODEL_UBLOX,
-    GNSS_MODEL_UC6580,
-    GNSS_MODEL_UNKNOWN,
-} GnssModel_t;
+typedef enum { GNSS_MODEL_MTK, GNSS_MODEL_UBLOX, GNSS_MODEL_UC6580, GNSS_MODEL_UNKNOWN, GNSS_MODEL_MTK_L76B } GnssModel_t;
 
 typedef enum {
     GNSS_RESPONSE_NONE,
@@ -92,8 +89,11 @@ class GPS : private concurrency::OSThread
 
   public:
     /** If !NULL we will use this serial port to construct our GPS */
+#if defined(RPI_PICO_WAVESHARE)
+    static SerialUART *_serial_gps;
+#else
     static HardwareSerial *_serial_gps;
-
+#endif
     static uint8_t _message_PMREQ[];
     static uint8_t _message_PMREQ_10[];
     static const uint8_t _message_CFG_RXM_PSM[];
@@ -106,6 +106,7 @@ class GPS : private concurrency::OSThread
     static const uint8_t _message_NAVX5[];
     static const uint8_t _message_NAVX5_8[];
     static const uint8_t _message_NMEA[];
+    static const uint8_t _message_DISABLE_TXT_INFO[];
     static const uint8_t _message_1HZ[];
     static const uint8_t _message_GLL[];
     static const uint8_t _message_GSA[];
@@ -116,6 +117,21 @@ class GPS : private concurrency::OSThread
     static const uint8_t _message_GGA[];
     static const uint8_t _message_PMS[];
     static const uint8_t _message_SAVE[];
+
+    // VALSET Commands for M10
+    static const uint8_t _message_VALSET_PM[];
+    static const uint8_t _message_VALSET_PM_RAM[];
+    static const uint8_t _message_VALSET_PM_BBR[];
+    static const uint8_t _message_VALSET_ITFM_RAM[];
+    static const uint8_t _message_VALSET_ITFM_BBR[];
+    static const uint8_t _message_VALSET_DISABLE_NMEA_RAM[];
+    static const uint8_t _message_VALSET_DISABLE_NMEA_BBR[];
+    static const uint8_t _message_VALSET_DISABLE_TXT_INFO_RAM[];
+    static const uint8_t _message_VALSET_DISABLE_TXT_INFO_BBR[];
+    static const uint8_t _message_VALSET_ENABLE_NMEA_RAM[];
+    static const uint8_t _message_VALSET_ENABLE_NMEA_BBR[];
+    static const uint8_t _message_VALSET_DISABLE_SBAS_RAM[];
+    static const uint8_t _message_VALSET_DISABLE_SBAS_BBR[];
 
     meshtastic_Position p = meshtastic_Position_init_default;
 
@@ -255,3 +271,4 @@ class GPS : private concurrency::OSThread
 };
 
 extern GPS *gps;
+#endif // Exclude GPS

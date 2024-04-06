@@ -49,9 +49,8 @@ class PositionModule : public ProtobufModule<meshtastic_Position>, private concu
 
   private:
     struct SmartPosition getDistanceTraveledSinceLastSend(meshtastic_PositionLite currentPosition);
-
-    /** Only used in power saving trackers for now */
-    void clearPosition();
+    meshtastic_MeshPacket *allocAtakPli();
+    uint32_t precision;
     void sendLostAndFoundText();
 };
 

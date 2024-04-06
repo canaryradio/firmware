@@ -1,7 +1,9 @@
-#include "NimbleBluetooth.h"
-#include "BluetoothCommon.h"
-#include "PowerFSM.h"
 #include "configuration.h"
+#if !MESHTASTIC_EXCLUDE_BLUETOOTH
+#include "BluetoothCommon.h"
+#include "NimbleBluetooth.h"
+#include "PowerFSM.h"
+
 #include "main.h"
 #include "mesh/PhoneAPI.h"
 #include "mesh/mesh-pb-constants.h"
@@ -110,6 +112,12 @@ void NimbleBluetooth::shutdown()
     NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->reset();
     pAdvertising->stop();
+
+#if defined(HELTEC_WIRELESS_PAPER) || defined(HELTEC_WIRELESS_PAPER_V1_0)
+    // Saving of ~1mA
+    // Probably applicable to other ESP32 boards - unverified
+    NimBLEDevice::deinit();
+#endif
 }
 
 bool NimbleBluetooth::isActive()
@@ -227,3 +235,4 @@ void clearNVS()
     ESP.restart();
 #endif
 }
+#endif

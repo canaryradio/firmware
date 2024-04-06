@@ -22,6 +22,12 @@ void LockingArduinoHal::spiEndTransaction()
 
     ArduinoHal::spiEndTransaction();
 }
+#if ARCH_PORTDUINO
+void LockingArduinoHal::spiTransfer(uint8_t *out, size_t len, uint8_t *in)
+{
+    spi->transfer(out, in, len);
+}
+#endif
 
 RadioLibInterface::RadioLibInterface(LockingArduinoHal *hal, RADIOLIB_PIN_TYPE cs, RADIOLIB_PIN_TYPE irq, RADIOLIB_PIN_TYPE rst,
                                      RADIOLIB_PIN_TYPE busy, PhysicalLayer *_iface)
@@ -359,8 +365,9 @@ void RadioLibInterface::handleReceiveInterrupt()
             mp->to = h->to;
             mp->id = h->id;
             mp->channel = h->channel;
-            assert(HOP_MAX <= PACKET_FLAGS_HOP_MASK); // If hopmax changes, carefully check this code
-            mp->hop_limit = h->flags & PACKET_FLAGS_HOP_MASK;
+            assert(HOP_MAX <= PACKET_FLAGS_HOP_LIMIT_MASK); // If hopmax changes, carefully check this code
+            mp->hop_limit = h->flags & PACKET_FLAGS_HOP_LIMIT_MASK;
+            mp->hop_start = (h->flags & PACKET_FLAGS_HOP_START_MASK) >> PACKET_FLAGS_HOP_START_SHIFT;
             mp->want_ack = !!(h->flags & PACKET_FLAGS_WANT_ACK_MASK);
             mp->via_mqtt = !!(h->flags & PACKET_FLAGS_VIA_MQTT_MASK);
 
