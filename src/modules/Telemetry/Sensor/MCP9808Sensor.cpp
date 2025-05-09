@@ -1,6 +1,6 @@
 #include "configuration.h"
 
-#if !MESHTASTIC_EXCLUDE_ENVIRONMENTAL_SENSOR
+#if !MESHTASTIC_EXCLUDE_ENVIRONMENTAL_SENSOR && __has_include(<Adafruit_MCP9808.h>)
 
 #include "../mesh/generated/meshtastic/telemetry.pb.h"
 #include "MCP9808Sensor.h"
@@ -11,7 +11,7 @@ MCP9808Sensor::MCP9808Sensor() : TelemetrySensor(meshtastic_TelemetrySensorType_
 
 int32_t MCP9808Sensor::runOnce()
 {
-    LOG_INFO("Init sensor: %s\n", sensorName);
+    LOG_INFO("Init sensor: %s", sensorName);
     if (!hasSensor()) {
         return DEFAULT_SENSOR_MINIMUM_WAIT_TIME_BETWEEN_READS;
     }
@@ -26,7 +26,9 @@ void MCP9808Sensor::setup()
 
 bool MCP9808Sensor::getMetrics(meshtastic_Telemetry *measurement)
 {
-    LOG_DEBUG("MCP9808Sensor::getMetrics\n");
+    measurement->variant.environment_metrics.has_temperature = true;
+
+    LOG_DEBUG("MCP9808 getMetrics");
     measurement->variant.environment_metrics.temperature = mcp9808.readTempC();
     return true;
 }

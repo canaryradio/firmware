@@ -1,7 +1,7 @@
 name: Feature Request
 description: Request a new feature
 title: "[Feature Request]: "
-labels: ["enhancement"]
+labels: [enhancement]
 body:
   - type: markdown
     attributes:
@@ -16,6 +16,10 @@ body:
       options:
         - NRF52
         - ESP32
+        - RP2040
+        - Linux Native
+        - Cross-Platform
+        - other
     validations:
       required: true
   - type: textarea

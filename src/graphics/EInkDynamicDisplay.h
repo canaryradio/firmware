@@ -23,6 +23,10 @@ class EInkDynamicDisplay : public EInkDisplay, protected concurrency::NotifiedWo
     EInkDynamicDisplay(uint8_t address, int sda, int scl, OLEDDISPLAY_GEOMETRY geometry, HW_I2C i2cBus);
     ~EInkDynamicDisplay();
 
+    // Methods to enable or disable unlimited fast refresh mode
+    void enableUnlimitedFastMode() { addFrameFlag(UNLIMITED_FAST); }
+    void disableUnlimitedFastMode() { frameFlags = (frameFlagTypes)(frameFlags & ~UNLIMITED_FAST); }
+
     // What kind of frame is this
     enum frameFlagTypes : uint8_t {
         BACKGROUND = (1 << 0),  // For frames via display()
@@ -30,6 +34,7 @@ class EInkDynamicDisplay : public EInkDisplay, protected concurrency::NotifiedWo
         COSMETIC = (1 << 2),    // For splashes
         DEMAND_FAST = (1 << 3), // Special case only
         BLOCKING = (1 << 4),    // Modifier - block while refresh runs
+        UNLIMITED_FAST = (1 << 5)
     };
     void addFrameFlag(frameFlagTypes flag);
 
@@ -109,6 +114,7 @@ class EInkDynamicDisplay : public EInkDisplay, protected concurrency::NotifiedWo
     refreshTypes currentConfig = FULL; // Which refresh type is GxEPD2 currently configured for
 
     // Optional - track ghosting, pixel by pixel
+    // May 2024: no longer used by any display. Kept for possible future use.
 #ifdef EINK_LIMIT_GHOSTING_PX
     void countGhostPixels();        // Count any pixels which have moved from black to white since last full-refresh
     void checkExcessiveGhosting();  // Check if ghosting exceeds defined limit
